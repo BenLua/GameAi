@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include "SceneMovement.h"
 #include "ConcreteMessages.h"
 
 GameObject::GameObject(GAMEOBJECT_TYPE typeValue) 
@@ -29,11 +30,14 @@ bool GameObject::Handle(Message* message)
 	if (dynamic_cast<MessageCheckActive*>(message) != nullptr)
 		return active;
 	else if (dynamic_cast<MessageCheckFish*>(message) != nullptr)
+	{
 		return active && type == GameObject::GO_PAPER;
+	}
 	else if (dynamic_cast<MessageCheckFood*>(message) != nullptr)
 		return active && type == GameObject::GO_ROCK;
-	else if (dynamic_cast<MessageCheckShark*>(message) != nullptr)
+	else if (dynamic_cast<MessageCheckScissors*>(message) != nullptr)
 		return active && type == GameObject::GO_SCISSORS;
+
 	//week 5
 	//set speed to 0 upon receiving stop message
 	else if (dynamic_cast<MessageStop*>(message) != nullptr)

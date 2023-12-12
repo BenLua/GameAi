@@ -21,6 +21,8 @@ void StateMachine::AddState(State *newState)
 	if (m_stateMap.find(newState->GetStateID()) != m_stateMap.end())
 		return;
 	m_stateMap.insert(std::pair<std::string, State*>(newState->GetStateID(), newState));
+
+	std::cout << "Added state \n";
 }
 
 void StateMachine::SetNextState(const std::string &nextStateID, GameObject* go)

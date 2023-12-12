@@ -40,9 +40,9 @@ struct MessageCheckFood : public Message
 	MessageCheckFood() {}
 };
 
-struct MessageCheckShark : public Message
+struct MessageCheckScissors : public Message
 {
-	MessageCheckShark() {}
+	MessageCheckScissors() {}
 };
 
 //week 5

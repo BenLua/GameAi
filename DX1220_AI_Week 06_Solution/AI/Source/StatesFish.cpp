@@ -25,8 +25,6 @@ void StateTooFull::Enter(GameObject* go)
 void StateTooFull::Update(double dt, GameObject* go)
 {
 	go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
-	if (go->energy < 10.f)
-		go->sm->SetNextState("Full", go);
 }
 
 void StateTooFull::Exit(GameObject* go)
@@ -89,9 +87,24 @@ void StateFull::Update(double dt, GameObject* go)
 			//message is allocated on the heap (WARNING: expensive. 
 			//either refactor PostOffice to not assume heap-allocated messages,
 			//or pool messages to avoid real-time heap allocation)
-			const float SHARK_DIST = 6.f * SceneData::GetInstance()->GetGridSize();
-			PostOffice::GetInstance()->Send("Scene", 
-				new MessageWRU(go, MessageWRU::NEAREST_SHARK, SHARK_DIST));
+			//const float SHARK_DIST = 6.f * SceneData::GetInstance()->GetGridSize();
+			//if (go->type == GameObject::GO_PAPER)
+			//{
+			//	PostOffice::GetInstance()->Send("Scene", new MessageWRU(go, MessageWRU::NEAREST_ROCK, 0)); //no need for threshold here
+
+			//}
+
+			//if (go->type == GameObject::GO_ROCK)
+			//{
+			//	PostOffice::GetInstance()->Send("Scene", new MessageWRU(go, MessageWRU::NEAREST_SCISSORS, 0)); //no need for threshold here
+
+			//}
+
+			//if (go->type == GameObject::GO_SCISSORS)
+			//{
+			//	PostOffice::GetInstance()->Send("Scene", new MessageWRU(go, MessageWRU::NEAREST_PAPER, 0)); //no need for threshold here
+
+			//}
 		}
 	}
 

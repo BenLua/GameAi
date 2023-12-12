@@ -58,19 +58,19 @@ void SceneMovement::Init()
 		go->scale.Set(gridSize, gridSize, gridSize);
 		go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
 		go->target = go->pos;
-		go->sm->SetNextState("Full", go);
+		go->sm->SetNextState("Happy", go);
 
 		go = FetchGO(GameObject::GO_ROCK);
 		go->scale.Set(gridSize, gridSize, gridSize);
 		go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
 		go->target = go->pos;
-		go->sm->SetNextState("Full", go);
+		go->sm->SetNextState("Happy", go);
 
 		go = FetchGO(GameObject::GO_SCISSORS);
 		go->scale.Set(gridSize, gridSize, gridSize);
 		go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
 		go->target = go->pos;
-		go->sm->SetNextState("Full", go);
+		go->sm->SetNextState("Happy", go);
 	}
 
 	//week 4
@@ -83,9 +83,6 @@ void SceneMovement::Init()
 //make statemachines for each object type
 void SceneMovement::InitStateMachines()
 {
-	//m_stateMachines.insert(std::make_pair(GameObject::GO_FISH, new StateMachine()));
-	//m_stateMachines.insert(std::make_pair(GameObject::GO_FISHFOOD, new StateMachine()));
-	//m_stateMachines.insert(std::make_pair(GameObject::GO_SHARK, new StateMachine()));
 
 
 	m_stateMachines.insert(std::make_pair(GameObject::GO_PAPER, new StateMachine()));
@@ -94,38 +91,20 @@ void SceneMovement::InitStateMachines()
 	//all paper have 3 states
 	StateMachine* sm = m_stateMachines[GameObject::GO_PAPER];
 	sm->AddState(new StateNaughty("Naughty"));
-	sm->AddState(new StateFull("Full"));
-	sm->AddState(new StateHungry("Hungry"));
+	sm->AddState(new StateFull("Crazy"));
+	sm->AddState(new StateHungry("Happy"));
 	//all rock have 3 states
 	sm = m_stateMachines[GameObject::GO_ROCK];
 	sm->AddState(new StateNaughty("Naughty"));
-	sm->AddState(new StateFull("Full"));
-	sm->AddState(new StateHungry("Hungry"));
+	sm->AddState(new StateFull("Crazy"));
+	sm->AddState(new StateHungry("Happy"));
 	//all scissors have 3 states
 	sm = m_stateMachines[GameObject::GO_SCISSORS];
 	sm->AddState(new StateNaughty("Naughty"));
-	sm->AddState(new StateFull("Full"));
-	sm->AddState(new StateHungry("Hungry"));
+	sm->AddState(new StateFull("Crazy"));
+	sm->AddState(new StateHungry("Happy"));
 
 
-
-	////all fish will share this statemachine
-	//sm = m_stateMachines[GameObject::GO_FISH];
-	//sm->AddState(new StateTooFull("TooFull"));
-	//sm->AddState(new StateFull("Full"));
-	//sm->AddState(new StateHungry("Hungry"));
-	//sm->AddState(new StateDead("Dead"));
-
-	////all food will share this statemachine
-	//sm = m_stateMachines[GameObject::GO_FISHFOOD];
-	//sm->AddState(new StateEvolve("Evolve"));
-	//sm->AddState(new StateGrow("Grow"));
-
-	////all shark will share this statemachine
-	//sm = m_stateMachines[GameObject::GO_SHARK];
-	//sm->AddState(new StateCrazy("Crazy"));
-	//sm->AddState(new StateNaughty("Naughty"));
-	//sm->AddState(new StateHappy("Happy"));
 }
 
 GameObject* SceneMovement::FetchGO(GameObject::GAMEOBJECT_TYPE type)
@@ -211,7 +190,7 @@ void SceneMovement::Update(double dt)
 		go->steps = 0;
 		go->energy = 8.f;
 		go->nearest = NULL;
-		go->sm->SetNextState("Naughty", go);
+		go->sm->SetNextState("Hungry", go);
 	}
 	else if (bSpaceState && !Application::IsKeyPressed(VK_SPACE))
 	{
@@ -226,7 +205,7 @@ void SceneMovement::Update(double dt)
 		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
 		go->target = go->pos;
 		go->moveSpeed = FOOD_SPEED;
-		go->sm->SetNextState("Naughty", go);
+		go->sm->SetNextState("Hungry", go);
 	}
 	else if (bVState && !Application::IsKeyPressed('V'))
 	{
@@ -240,7 +219,7 @@ void SceneMovement::Update(double dt)
 		go->scale.Set(gridSize, gridSize, gridSize);
 		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
 		go->target = go->pos;
-		go->sm->SetNextState("Naughty", go);
+		go->sm->SetNextState("Hungry", go);
 	}
 	else if (bBState && !Application::IsKeyPressed('B'))
 	{
@@ -252,7 +231,9 @@ void SceneMovement::Update(double dt)
 	{
 		GameObject *go = (GameObject *)*it;
 		if (!go->active)
+		{
 			continue;
+		}
 		if (go->sm)
 			go->sm->Update(dt, go);
 	}
@@ -269,32 +250,6 @@ void SceneMovement::Update(double dt)
 		if (go->nearest!=nullptr && !go->nearest->active)
 			go->nearest = nullptr;
 
-		//if (go->type == GameObject::GO_FISH)
-		//{
-		//	for (std::vector<GameObject *>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
-		//	{
-		//		GameObject *go2 = (GameObject *)*it2;
-		//		if (!go2->active)
-		//			continue;
-		//		if (go2->type == GameObject::GO_SHARK)
-		//		{
-		//			float distance = (go->pos - go2->pos).Length();
-		//			if (distance < gridSize)
-		//			{
-		//				go->energy = -1;
-		//			}
-		//		}
-		//		else if (go2->type == GameObject::GO_FISHFOOD)
-		//		{
-		//			float distance = (go->pos - go2->pos).Length();
-		//			if (distance < gridSize)
-		//			{
-		//				go->energy += 2.5f;
-		//				go2->active = false;
-		//			}
-		//		}
-		//	}
-		//}
 
 		if (go->type == GameObject::GO_PAPER)
 		{
@@ -398,7 +353,8 @@ void SceneMovement::Update(double dt)
 	MessageCheckActive msgCheckActive = MessageCheckActive();
 	MessageCheckFish msgCheckFish = MessageCheckFish();
 	MessageCheckFood msgCheckFood = MessageCheckFood();
-	MessageCheckShark msgCheckShark = MessageCheckShark();
+	MessageCheckScissors msgCheckScissors = MessageCheckScissors();
+
 	for (GameObject* go : m_goList)
 	{
 		//since PostOffice does not support sending to multiple observers under
@@ -407,13 +363,13 @@ void SceneMovement::Update(double dt)
 		objectCount += static_cast<int>(go->Handle(&msgCheckActive));
 		m_numGO[GameObject::GO_PAPER] += static_cast<int>(go->Handle(&msgCheckFish));
 		m_numGO[GameObject::GO_ROCK] += static_cast<int>(go->Handle(&msgCheckFood));
-		m_numGO[GameObject::GO_SCISSORS] += static_cast<int>(go->Handle(&msgCheckShark));
+		m_numGO[GameObject::GO_SCISSORS] += static_cast<int>(go->Handle(&msgCheckScissors));
 	}
 
 	SceneData::GetInstance()->SetObjectCount(objectCount);
-	SceneData::GetInstance()->SetFishCount(m_numGO[GameObject::GO_PAPER]);
-	SceneData::GetInstance()->SetFishCount(m_numGO[GameObject::GO_ROCK]);
-	SceneData::GetInstance()->SetFishCount(m_numGO[GameObject::GO_SCISSORS]);
+	SceneData::GetInstance()->SetPaperCount(m_numGO[GameObject::GO_PAPER]);
+	SceneData::GetInstance()->SetRockCount(m_numGO[GameObject::GO_ROCK]);
+	SceneData::GetInstance()->SetScissorsCount(m_numGO[GameObject::GO_SCISSORS]);
 
 	//week 5
 	ProcessMessages();
@@ -519,7 +475,7 @@ void SceneMovement::RenderGO(GameObject *go)
 			modelStack.PushMatrix();
 				ss.str("");
 				ss.precision(3);
-				//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+				ss << "[" << go->pos.x << ", " << go->pos.y << "]";
 				ss << "[" << go->countDown << "]";
 				modelStack.Scale(0.5f, 0.5f, 0.5f);
 				modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, -SceneData::GetInstance()->GetGridSize() / 4, 0);
@@ -535,7 +491,7 @@ void SceneMovement::RenderGO(GameObject *go)
 			modelStack.PushMatrix();
 				ss.str("");
 				ss.precision(3);
-				//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+				ss << "[" << go->pos.x << ", " << go->pos.y << "]";
 				ss << "[" << go->countDown << "]";
 				modelStack.Scale(0.5f, 0.5f, 0.5f);
 				modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, -SceneData::GetInstance()->GetGridSize() / 4, 0);
@@ -551,7 +507,7 @@ void SceneMovement::RenderGO(GameObject *go)
 			modelStack.PushMatrix();
 				ss.str("");
 				ss.precision(3);
-				//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+				ss << "[" << go->pos.x << ", " << go->pos.y << "]";
 				ss << "[" << go->countDown << "]";
 				modelStack.Scale(0.5f, 0.5f, 0.5f);
 				modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, -SceneData::GetInstance()->GetGridSize() / 4, 0);
@@ -608,16 +564,41 @@ void SceneMovement::Render()
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
-		if ((go->active) && (go->type == GameObject::GO_FISH) && (go->nearest))
-		{
-			ss.str("");
-			ss << "Fish:" << go->id << "[" << go->pos.x << "," << go->pos.y << 
-				"]>[" << go->nearest->pos.x << "," << go->nearest->pos.y << "]";
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 56 - fCounter);
-			fCounter += 2.0f;
+		//if ((go->active) && (go->type == GameObject::GO_FISH) && (go->nearest))
+		//{
+		//	ss.str("");
+		//	ss << "Fish:" << go->id << "[" << go->pos.x << "," << go->pos.y << 
+		//		"]>[" << go->nearest->pos.x << "," << go->nearest->pos.y << "]";
+		//	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 56 - fCounter);
+		//	fCounter += 2.0f;
 
+		//	//week 5
+		//	//draw line from fish to target
+		//	RenderLine(go->pos, go->nearest->pos);
+		//}
+
+		// paper object
+		if ((go->active) && (go->type == GameObject::GO_PAPER) && (go->nearest))
+		{
 			//week 5
-			//draw line from fish to target
+			//draw line from obj to target
+			RenderLine(go->pos, go->nearest->pos);
+			std::cout << "Render line for paper";
+		}
+
+		// rock object
+		if ((go->active) && (go->type == GameObject::GO_ROCK) && (go->nearest))
+		{
+			//week 5
+			//draw line from obj to target
+			RenderLine(go->pos, go->nearest->pos);
+		}
+
+		// Scissors object
+		if ((go->active) && (go->type == GameObject::GO_SCISSORS) && (go->nearest))
+		{
+			//week 5
+			//draw line from obj to target
 			RenderLine(go->pos, go->nearest->pos);
 		}
 	}
@@ -637,18 +618,18 @@ void SceneMovement::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 9);
 
 	ss.str("");
-	ss << "Fishes:" << m_numGO[GameObject::GO_FISH];
+	ss << "Paper:" << m_numGO[GameObject::GO_PAPER];
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 18);
 
 	ss.str("");
-	ss << "Shark:" << m_numGO[GameObject::GO_SHARK];
+	ss << "Rock:" << m_numGO[GameObject::GO_ROCK];
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 15);
 
 	ss.str("");
-	ss << "Food:" << m_numGO[GameObject::GO_FISHFOOD];
+	ss << "Scissors:" << m_numGO[GameObject::GO_SCISSORS];
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 12);
 	
-	RenderTextOnScreen(meshList[GEO_TEXT], "Aquarium", Color(0, 1, 0), 3, 50, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Rock Paper Scissors", Color(0, 1, 0), 3, 50, 0);
 }
 
 void SceneMovement::Exit()
@@ -695,6 +676,10 @@ bool SceneMovement::Handle(Message* message)
 //call this at the end of update, where we go through each message one by one
 void SceneMovement::ProcessMessages()
 {
+	if (m_messageQueue.empty())
+	{
+		std::cout << "message queue empty";
+	}
 	while(!m_messageQueue.empty())
 	{
 		//take message at front of queue and remove it from queue
@@ -719,9 +704,64 @@ void SceneMovement::ProcessMessages()
 				if (!go2->active)
 					continue;
 
-				//message indicates go is hunting for nearest fish food
-				if (messageWRU->type == MessageWRU::NEAREST_FISHFOOD &&
-					go2->type == GameObject::GO_FISHFOOD)
+				////message indicates go is hunting for nearest fish food
+				//if (messageWRU->type == MessageWRU::NEAREST_FISHFOOD &&
+				//	go2->type == GameObject::GO_FISHFOOD)
+				//{
+				//	float distance = (go->pos - go2->pos).Length();
+				//	if (distance < messageWRU->threshold && distance < nearestDistance)
+				//	{
+				//		nearestDistance = distance;
+				//		go->nearest = go2;
+				//	}
+				//}
+				////message indicates go is seeking nearest shark
+				//else if (messageWRU->type == MessageWRU::NEAREST_SHARK &&
+				//		 go2->type == GameObject::GO_SHARK)
+				//{
+				//	float distance = (go->pos - go2->pos).Length();
+				//	if (distance < messageWRU->threshold && distance < nearestDistance)
+				//	{
+				//		nearestDistance = distance;
+				//		go->nearest = go2;
+				//	}
+				//}
+				////message indicates go is hunting for full fish
+				//else if (messageWRU->type == MessageWRU::NEAREST_FULLFISH &&
+				//		 go2->type == GameObject::GO_FISH)
+				//{
+				//	float distance = (go->pos - go2->pos).Length();
+				//	if (distance < nearestDistance &&
+				//		(go2->sm->GetCurrentState(go2) == "TooFull" || go2->sm->GetCurrentState(go2) == "Full"))
+				//	{
+				//		nearestDistance = distance;
+				//		go->nearest = go2;
+				//	}
+				//}
+				////message indicated go is hunting for highest energy fish
+				//else if (messageWRU->type == MessageWRU::HIGHEST_ENERGYFISH &&
+				//		 go2->type == GameObject::GO_FISH)
+				//{
+				//	if (go2->energy > highestEnergy)
+				//	{
+				//		highestEnergy = go2->energy;
+				//		go->nearest = go2;
+				//	}
+				//}
+				if (messageWRU->type == MessageWRU::NEAREST_PAPER &&
+					go2->type == GameObject::GO_PAPER)
+				{
+					std::cout << "messageWRU->type is = to NEAREST_PAPER";
+
+					float distance = (go->pos - go2->pos).Length();
+					if (distance < messageWRU->threshold && distance < nearestDistance)
+					{
+						nearestDistance = distance;
+						go->nearest = go2;
+					}
+				}
+				else if (messageWRU->type == MessageWRU::NEAREST_ROCK &&
+					go2->type == GameObject::GO_ROCK)
 				{
 					float distance = (go->pos - go2->pos).Length();
 					if (distance < messageWRU->threshold && distance < nearestDistance)
@@ -730,9 +770,8 @@ void SceneMovement::ProcessMessages()
 						go->nearest = go2;
 					}
 				}
-				//message indicates go is seeking nearest shark
-				else if (messageWRU->type == MessageWRU::NEAREST_SHARK &&
-						 go2->type == GameObject::GO_SHARK)
+				else if (messageWRU->type == MessageWRU::NEAREST_SCISSORS &&
+					go2->type == GameObject::GO_SCISSORS)
 				{
 					float distance = (go->pos - go2->pos).Length();
 					if (distance < messageWRU->threshold && distance < nearestDistance)
@@ -741,32 +780,23 @@ void SceneMovement::ProcessMessages()
 						go->nearest = go2;
 					}
 				}
-				//message indicates go is hunting for full fish
-				else if (messageWRU->type == MessageWRU::NEAREST_FULLFISH &&
-						 go2->type == GameObject::GO_FISH)
-				{
-					float distance = (go->pos - go2->pos).Length();
-					if (distance < nearestDistance &&
-						(go2->sm->GetCurrentState(go2) == "TooFull" || go2->sm->GetCurrentState(go2) == "Full"))
-					{
-						nearestDistance = distance;
-						go->nearest = go2;
-					}
-				}
-				//message indicated go is hunting for highest energy fish
-				else if (messageWRU->type == MessageWRU::HIGHEST_ENERGYFISH &&
-						 go2->type == GameObject::GO_FISH)
-				{
-					if (go2->energy > highestEnergy)
-					{
-						highestEnergy = go2->energy;
-						go->nearest = go2;
-					}
-				}
+
 			}
 
 			//week 5: make food stop
-			if (go->nearest && go->nearest->type == GameObject::GO_FISHFOOD)
+			if (go->nearest && go->nearest->type == GameObject::GO_PAPER)
+			{
+				//this message is created on the stack because we're trying to avoid heap allocation where we can
+				MessageStop msg; //msg will remain in memory until after it's been handled
+				go->nearest->Handle(&msg);
+			}
+			else if (go->nearest && go->nearest->type == GameObject::GO_ROCK)
+			{
+				//this message is created on the stack because we're trying to avoid heap allocation where we can
+				MessageStop msg; //msg will remain in memory until after it's been handled
+				go->nearest->Handle(&msg);
+			}
+			else if (go->nearest && go->nearest->type == GameObject::GO_SCISSORS)
 			{
 				//this message is created on the stack because we're trying to avoid heap allocation where we can
 				MessageStop msg; //msg will remain in memory until after it's been handled
@@ -777,9 +807,9 @@ void SceneMovement::ProcessMessages()
 		SceneData& sceneData = *SceneData::GetInstance(); //just defining a short hand for the singleton
 		//week 5
 		//check if this message is MessageSpawn
-		MessageSpawn* messageSpawn = dynamic_cast<MessageSpawn*>(message);
-		if (messageSpawn != nullptr)
-		{
+		//MessageSpawn* messageSpawn = dynamic_cast<MessageSpawn*>(message);
+		//if (messageSpawn != nullptr)
+		//{
 			//for (int i = 0; i < messageSpawn->count; ++i)
 			//{
 			//	//figure out the tile position to spawn the object(food)
@@ -807,19 +837,19 @@ void SceneMovement::ProcessMessages()
 			//		go->sm->SetNextState("Grow", go);
 			//	}
 			//}
-		}
+		//}
 
-		MessageEvolve* messageEvolve = dynamic_cast<MessageEvolve*>(message);
-		if (messageEvolve != nullptr)
-		{
-			messageEvolve->go->active = false;
-			GameObject* go = FetchGO(GameObject::GO_FISH);
-			go->scale.Set(sceneData.GetGridSize(), sceneData.GetGridSize(), sceneData.GetGridSize());
-			go->pos = messageEvolve->go->pos;
-			go->target = messageEvolve->go->target;
-			go->energy = 8.0f;
-			go->sm->SetNextState("Full", go);
-		}
+		//MessageEvolve* messageEvolve = dynamic_cast<MessageEvolve*>(message);
+		//if (messageEvolve != nullptr)
+		//{
+		//	messageEvolve->go->active = false;
+		//	GameObject* go = FetchGO(GameObject::GO_FISH);
+		//	go->scale.Set(sceneData.GetGridSize(), sceneData.GetGridSize(), sceneData.GetGridSize());
+		//	go->pos = messageEvolve->go->pos;
+		//	go->target = messageEvolve->go->target;
+		//	go->energy = 8.0f;
+		//	go->sm->SetNextState("Full", go);
+		//}
 
 		delete message; //remember, the message is allocated on the heap!
 	}
