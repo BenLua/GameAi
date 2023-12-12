@@ -132,6 +132,12 @@ void SceneBase::Init()
 	meshList[GEO_HAPPY] = MeshBuilder::GenerateQuad("happy", Color(1, 1, 1));
 	meshList[GEO_HAPPY]->textureID = LoadTGA("Image//happy.tga");
 	meshList[GEO_TEXT]->material.kAmbient.Set(1, 0, 0);
+	meshList[GEO_PAPER] = MeshBuilder::GenerateQuad("paper", Color(1, 1, 1));
+	meshList[GEO_PAPER]->textureID = LoadTGA("Image//paper.tga");
+	meshList[GEO_ROCK] = MeshBuilder::GenerateQuad("rock", Color(1, 1, 1));
+	meshList[GEO_ROCK]->textureID = LoadTGA("Image//rock.tga");
+	meshList[GEO_SCISSORS] = MeshBuilder::GenerateQuad("scissors", Color(1, 1, 1));
+	meshList[GEO_SCISSORS]->textureID = LoadTGA("Image//scissors.tga");
 
 	//week 6 - make chessboard mesh/texture pair
 	meshList[GEO_CHESSBOARD] = MeshBuilder::GenerateQuad("chessboard", Color(1, 1, 1));

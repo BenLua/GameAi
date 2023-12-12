@@ -11,6 +11,12 @@ public:
 	void SetObjectCount(const int objectCount);
 	int GetFishCount() const;
 	void SetFishCount(const int fishCount);
+	int GetPaperCount() const;
+	void SetPaperCount(const int papercount);
+	int GetRockCount() const;
+	void SetRockCount(const int scissorscount);
+	int GetScissorsCount() const;
+	void SetScissorsCount(const int scissorscount);
 	int GetNumGrid() const;
 	void SetNumGrid(const int numGrid);
 	float GetGridSize() const;
@@ -23,6 +29,9 @@ private:
 	~SceneData();
 	int m_objectCount;
 	int m_fishCount;
+	int m_papercount;
+	int m_rockcount;
+	int m_scissorscount;
 	int m_noGrid;
 	float m_gridSize;
 	float m_gridOffset;

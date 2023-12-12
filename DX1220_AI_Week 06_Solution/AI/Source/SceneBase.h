@@ -66,6 +66,9 @@ public:
 		GEO_CHESSBOARD,
 		GEO_QUEEN,
 		GEO_KNIGHT,
+		GEO_PAPER,
+		GEO_ROCK,
+		GEO_SCISSORS,
 		NUM_GEOMETRY,
 	};
 public:

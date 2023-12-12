@@ -38,7 +38,7 @@ void SceneMovement::Init()
 
 	SceneData::GetInstance()->SetObjectCount(0);
 	SceneData::GetInstance()->SetFishCount(0);
-	SceneData::GetInstance()->SetNumGrid(20);
+	SceneData::GetInstance()->SetNumGrid(25);
 	SceneData::GetInstance()->SetGridSize(m_worldHeight / SceneData::GetInstance()->GetNumGrid());
 	SceneData::GetInstance()->SetGridOffset(SceneData::GetInstance()->GetGridSize() * 0.5f);
 	m_hourOfTheDay = 0;
@@ -46,11 +46,32 @@ void SceneMovement::Init()
 	float gridSize = SceneData::GetInstance()->GetGridSize();
 	float gridOffset = SceneData::GetInstance()->GetGridOffset();
 	int numGrid = SceneData::GetInstance()->GetNumGrid();
-	GameObject *go = FetchGO(GameObject::GO_SHARK);
-	go->scale.Set(gridSize, gridSize, gridSize);
-	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
-	go->target = go->pos;
-	go->sm->SetNextState("Happy", go);
+	//GameObject *go = FetchGO(GameObject::GO_SHARK);
+	//go->scale.Set(gridSize, gridSize, gridSize);
+	//go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
+	//go->target = go->pos;
+	//go->sm->SetNextState("Happy", go);
+
+	for (int i = 0; i < 10; i++)
+	{
+		GameObject* go = FetchGO(GameObject::GO_PAPER);
+		go->scale.Set(gridSize, gridSize, gridSize);
+		go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
+		go->target = go->pos;
+		go->sm->SetNextState("Full", go);
+
+		go = FetchGO(GameObject::GO_ROCK);
+		go->scale.Set(gridSize, gridSize, gridSize);
+		go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
+		go->target = go->pos;
+		go->sm->SetNextState("Full", go);
+
+		go = FetchGO(GameObject::GO_SCISSORS);
+		go->scale.Set(gridSize, gridSize, gridSize);
+		go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
+		go->target = go->pos;
+		go->sm->SetNextState("Full", go);
+	}
 
 	//week 4
 	//register this scene with the "post office"
@@ -62,27 +83,49 @@ void SceneMovement::Init()
 //make statemachines for each object type
 void SceneMovement::InitStateMachines()
 {
-	m_stateMachines.insert(std::make_pair(GameObject::GO_FISH, new StateMachine()));
-	m_stateMachines.insert(std::make_pair(GameObject::GO_FISHFOOD, new StateMachine()));
-	m_stateMachines.insert(std::make_pair(GameObject::GO_SHARK, new StateMachine()));
-	
-	//all fish will share this statemachine
-	StateMachine* sm = m_stateMachines[GameObject::GO_FISH];
-	sm->AddState(new StateTooFull("TooFull"));
+	//m_stateMachines.insert(std::make_pair(GameObject::GO_FISH, new StateMachine()));
+	//m_stateMachines.insert(std::make_pair(GameObject::GO_FISHFOOD, new StateMachine()));
+	//m_stateMachines.insert(std::make_pair(GameObject::GO_SHARK, new StateMachine()));
+
+
+	m_stateMachines.insert(std::make_pair(GameObject::GO_PAPER, new StateMachine()));
+	m_stateMachines.insert(std::make_pair(GameObject::GO_ROCK, new StateMachine()));
+	m_stateMachines.insert(std::make_pair(GameObject::GO_SCISSORS, new StateMachine()));
+	//all paper have 3 states
+	StateMachine* sm = m_stateMachines[GameObject::GO_PAPER];
+	sm->AddState(new StateNaughty("Naughty"));
 	sm->AddState(new StateFull("Full"));
 	sm->AddState(new StateHungry("Hungry"));
-	sm->AddState(new StateDead("Dead"));
-
-	//all food will share this statemachine
-	sm = m_stateMachines[GameObject::GO_FISHFOOD];
-	sm->AddState(new StateEvolve("Evolve"));
-	sm->AddState(new StateGrow("Grow"));
-
-	//all shark will share this statemachine
-	sm = m_stateMachines[GameObject::GO_SHARK];
-	sm->AddState(new StateCrazy("Crazy"));
+	//all rock have 3 states
+	sm = m_stateMachines[GameObject::GO_ROCK];
 	sm->AddState(new StateNaughty("Naughty"));
-	sm->AddState(new StateHappy("Happy"));
+	sm->AddState(new StateFull("Full"));
+	sm->AddState(new StateHungry("Hungry"));
+	//all scissors have 3 states
+	sm = m_stateMachines[GameObject::GO_SCISSORS];
+	sm->AddState(new StateNaughty("Naughty"));
+	sm->AddState(new StateFull("Full"));
+	sm->AddState(new StateHungry("Hungry"));
+
+
+
+	////all fish will share this statemachine
+	//sm = m_stateMachines[GameObject::GO_FISH];
+	//sm->AddState(new StateTooFull("TooFull"));
+	//sm->AddState(new StateFull("Full"));
+	//sm->AddState(new StateHungry("Hungry"));
+	//sm->AddState(new StateDead("Dead"));
+
+	////all food will share this statemachine
+	//sm = m_stateMachines[GameObject::GO_FISHFOOD];
+	//sm->AddState(new StateEvolve("Evolve"));
+	//sm->AddState(new StateGrow("Grow"));
+
+	////all shark will share this statemachine
+	//sm = m_stateMachines[GameObject::GO_SHARK];
+	//sm->AddState(new StateCrazy("Crazy"));
+	//sm->AddState(new StateNaughty("Naughty"));
+	//sm->AddState(new StateHappy("Happy"));
 }
 
 GameObject* SceneMovement::FetchGO(GameObject::GAMEOBJECT_TYPE type)
@@ -161,14 +204,14 @@ void SceneMovement::Update(double dt)
 	if (!bSpaceState && Application::IsKeyPressed(VK_SPACE))
 	{
 		bSpaceState = true;
-		GameObject *go = FetchGO(GameObject::GO_FISH);
+		GameObject *go = FetchGO(GameObject::GO_PAPER);
 		go->scale.Set(gridSize, gridSize, gridSize);
-		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0); 
 		go->target = go->pos;
 		go->steps = 0;
 		go->energy = 8.f;
 		go->nearest = NULL;
-		go->sm->SetNextState("Full", go);
+		go->sm->SetNextState("Naughty", go);
 	}
 	else if (bSpaceState && !Application::IsKeyPressed(VK_SPACE))
 	{
@@ -178,12 +221,12 @@ void SceneMovement::Update(double dt)
 	if (!bVState && Application::IsKeyPressed('V'))
 	{
 		bVState = true;
-		GameObject *go = FetchGO(GameObject::GO_FISHFOOD);
+		GameObject *go = FetchGO(GameObject::GO_ROCK);
 		go->scale.Set(gridSize, gridSize, gridSize);
 		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
 		go->target = go->pos;
 		go->moveSpeed = FOOD_SPEED;
-		go->sm->SetNextState("Grow", go);
+		go->sm->SetNextState("Naughty", go);
 	}
 	else if (bVState && !Application::IsKeyPressed('V'))
 	{
@@ -193,11 +236,11 @@ void SceneMovement::Update(double dt)
 	if (!bBState && Application::IsKeyPressed('B'))
 	{
 		bBState = true;
-		GameObject *go = FetchGO(GameObject::GO_SHARK);
+		GameObject *go = FetchGO(GameObject::GO_SCISSORS);
 		go->scale.Set(gridSize, gridSize, gridSize);
 		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
 		go->target = go->pos;
-		go->sm->SetNextState("Happy", go);
+		go->sm->SetNextState("Naughty", go);
 	}
 	else if (bBState && !Application::IsKeyPressed('B'))
 	{
@@ -226,28 +269,82 @@ void SceneMovement::Update(double dt)
 		if (go->nearest!=nullptr && !go->nearest->active)
 			go->nearest = nullptr;
 
-		if (go->type == GameObject::GO_FISH)
+		//if (go->type == GameObject::GO_FISH)
+		//{
+		//	for (std::vector<GameObject *>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
+		//	{
+		//		GameObject *go2 = (GameObject *)*it2;
+		//		if (!go2->active)
+		//			continue;
+		//		if (go2->type == GameObject::GO_SHARK)
+		//		{
+		//			float distance = (go->pos - go2->pos).Length();
+		//			if (distance < gridSize)
+		//			{
+		//				go->energy = -1;
+		//			}
+		//		}
+		//		else if (go2->type == GameObject::GO_FISHFOOD)
+		//		{
+		//			float distance = (go->pos - go2->pos).Length();
+		//			if (distance < gridSize)
+		//			{
+		//				go->energy += 2.5f;
+		//				go2->active = false;
+		//			}
+		//		}
+		//	}
+		//}
+
+		if (go->type == GameObject::GO_PAPER)
 		{
-			for (std::vector<GameObject *>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
+			for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
 			{
-				GameObject *go2 = (GameObject *)*it2;
+				GameObject* go2 = (GameObject*)*it2;
 				if (!go2->active)
 					continue;
-				if (go2->type == GameObject::GO_SHARK)
+				if (go2->type == GameObject::GO_ROCK)
 				{
 					float distance = (go->pos - go2->pos).Length();
 					if (distance < gridSize)
 					{
-						go->energy = -1;
+						go2->type = GameObject::GO_PAPER;
 					}
 				}
-				else if (go2->type == GameObject::GO_FISHFOOD)
+			}
+		}
+
+		if (go->type == GameObject::GO_ROCK)
+		{
+			for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
+			{
+				GameObject* go2 = (GameObject*)*it2;
+				if (!go2->active)
+					continue;
+				if (go2->type == GameObject::GO_SCISSORS)
 				{
 					float distance = (go->pos - go2->pos).Length();
 					if (distance < gridSize)
 					{
-						go->energy += 2.5f;
-						go2->active = false;
+						go2->type = GameObject::GO_ROCK;
+					}
+				}
+			}
+		}
+
+		if (go->type == GameObject::GO_SCISSORS)
+		{
+			for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
+			{
+				GameObject* go2 = (GameObject*)*it2;
+				if (!go2->active)
+					continue;
+				if (go2->type == GameObject::GO_PAPER)
+				{
+					float distance = (go->pos - go2->pos).Length();
+					if (distance < gridSize)
+					{
+						go2->type = GameObject::GO_SCISSORS;
 					}
 				}
 			}
@@ -268,7 +365,7 @@ void SceneMovement::Update(double dt)
 			float random = Math::RandFloatMinMax(0.f, 1.f);
 			if (random < 0.25f && go->moveRight)
 				go->target = go->pos + Vector3(gridSize, 0, 0);
-			else if (random < 0.5f && go->moveLeft)
+			else if (random < 0.5f && go->moveLeft) 
 				go->target = go->pos + Vector3(-gridSize, 0, 0);
 			else if (random < 0.75f && go->moveUp)
 				go->target = go->pos + Vector3(0, gridSize, 0);
@@ -293,7 +390,8 @@ void SceneMovement::Update(double dt)
 	//week 4
 	//Counting objects
 	int objectCount = 0;
-	m_numGO[GameObject::GO_FISH] = m_numGO[GameObject::GO_SHARK] = m_numGO[GameObject::GO_FISHFOOD] = 0;
+	m_numGO[GameObject::GO_FISH] = m_numGO[GameObject::GO_SHARK] = m_numGO[GameObject::GO_FISHFOOD]
+		= m_numGO[GameObject::GO_PAPER] = m_numGO[GameObject::GO_ROCK] = m_numGO[GameObject::GO_SCISSORS] = 0;
 
 	//create message on the stack, then pass the address of message to each gameobject
 	//i.e. everyone shares the same message. fewer allocation of memory.
@@ -307,13 +405,15 @@ void SceneMovement::Update(double dt)
 		//a single key, we opt for this approach
 		//consider changing PostOffice to support this functionality if you want! :)
 		objectCount += static_cast<int>(go->Handle(&msgCheckActive));
-		m_numGO[GameObject::GO_FISH] += static_cast<int>(go->Handle(&msgCheckFish));
-		m_numGO[GameObject::GO_FISHFOOD] += static_cast<int>(go->Handle(&msgCheckFood));
-		m_numGO[GameObject::GO_SHARK] += static_cast<int>(go->Handle(&msgCheckShark));
+		m_numGO[GameObject::GO_PAPER] += static_cast<int>(go->Handle(&msgCheckFish));
+		m_numGO[GameObject::GO_ROCK] += static_cast<int>(go->Handle(&msgCheckFood));
+		m_numGO[GameObject::GO_SCISSORS] += static_cast<int>(go->Handle(&msgCheckShark));
 	}
 
 	SceneData::GetInstance()->SetObjectCount(objectCount);
-	SceneData::GetInstance()->SetFishCount(m_numGO[GameObject::GO_FISH]);
+	SceneData::GetInstance()->SetFishCount(m_numGO[GameObject::GO_PAPER]);
+	SceneData::GetInstance()->SetFishCount(m_numGO[GameObject::GO_ROCK]);
+	SceneData::GetInstance()->SetFishCount(m_numGO[GameObject::GO_SCISSORS]);
 
 	//week 5
 	ProcessMessages();
@@ -400,6 +500,54 @@ void SceneMovement::RenderGO(GameObject *go)
 		modelStack.Translate(go->pos.x, go->pos.y, zOffset);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
 		RenderMesh(meshList[GEO_FISHFOOD], false);
+			modelStack.PushMatrix();
+				ss.str("");
+				ss.precision(3);
+				//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+				ss << "[" << go->countDown << "]";
+				modelStack.Scale(0.5f, 0.5f, 0.5f);
+				modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+				RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+			modelStack.PopMatrix();
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_PAPER:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, zOffset);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_PAPER], false);
+			modelStack.PushMatrix();
+				ss.str("");
+				ss.precision(3);
+				//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+				ss << "[" << go->countDown << "]";
+				modelStack.Scale(0.5f, 0.5f, 0.5f);
+				modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+				RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+			modelStack.PopMatrix();
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_ROCK:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, zOffset);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_ROCK], false);
+			modelStack.PushMatrix();
+				ss.str("");
+				ss.precision(3);
+				//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+				ss << "[" << go->countDown << "]";
+				modelStack.Scale(0.5f, 0.5f, 0.5f);
+				modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+				RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+			modelStack.PopMatrix();
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_SCISSORS:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, zOffset);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		RenderMesh(meshList[GEO_SCISSORS], false);
 			modelStack.PushMatrix();
 				ss.str("");
 				ss.precision(3);
@@ -632,33 +780,33 @@ void SceneMovement::ProcessMessages()
 		MessageSpawn* messageSpawn = dynamic_cast<MessageSpawn*>(message);
 		if (messageSpawn != nullptr)
 		{
-			for (int i = 0; i < messageSpawn->count; ++i)
-			{
-				//figure out the tile position to spawn the object(food)
-				int sign = Math::RandFloatMinMax(0.f, 1.f) < 0.5f ? -1 : 1;
-				GameObject* go = FetchGO((GameObject::GAMEOBJECT_TYPE)messageSpawn->type);
-				//position is calculated as a random offset from the tile positions of the message sender(fish)
-				int tileX = static_cast<int>(messageSpawn->go->pos.x / sceneData.GetGridSize()) + sign * Math::RandIntMinMax(messageSpawn->distRange[0], messageSpawn->distRange[1]);
-				int tileY = static_cast<int>(messageSpawn->go->pos.y / sceneData.GetGridSize()) + sign * Math::RandIntMinMax(messageSpawn->distRange[0], messageSpawn->distRange[1]);
-				tileX = Math::Clamp(tileX, 0, sceneData.GetNumGrid() - 1);
-				tileY = Math::Clamp(tileY, 0, sceneData.GetNumGrid() - 1);
+			//for (int i = 0; i < messageSpawn->count; ++i)
+			//{
+			//	//figure out the tile position to spawn the object(food)
+			//	int sign = Math::RandFloatMinMax(0.f, 1.f) < 0.5f ? -1 : 1;
+			//	GameObject* go = FetchGO((GameObject::GAMEOBJECT_TYPE)messageSpawn->type);
+			//	//position is calculated as a random offset from the tile positions of the message sender(fish)
+			//	int tileX = static_cast<int>(messageSpawn->go->pos.x / sceneData.GetGridSize()) + sign * Math::RandIntMinMax(messageSpawn->distRange[0], messageSpawn->distRange[1]);
+			//	int tileY = static_cast<int>(messageSpawn->go->pos.y / sceneData.GetGridSize()) + sign * Math::RandIntMinMax(messageSpawn->distRange[0], messageSpawn->distRange[1]);
+			//	tileX = Math::Clamp(tileX, 0, sceneData.GetNumGrid() - 1);
+			//	tileY = Math::Clamp(tileY, 0, sceneData.GetNumGrid() - 1);
 
-				go->scale.Set(sceneData.GetGridSize(), sceneData.GetGridSize(), sceneData.GetGridSize());
-				go->pos.Set(sceneData.GetGridOffset() + tileX * sceneData.GetGridSize(),
-							sceneData.GetGridOffset() + tileY * sceneData.GetGridSize(), 0);
-				go->target = go->pos;
-				go->moveSpeed = FOOD_SPEED;
+			//	go->scale.Set(sceneData.GetGridSize(), sceneData.GetGridSize(), sceneData.GetGridSize());
+			//	go->pos.Set(sceneData.GetGridOffset() + tileX * sceneData.GetGridSize(),
+			//				sceneData.GetGridOffset() + tileY * sceneData.GetGridSize(), 0);
+			//	go->target = go->pos;
+			//	go->moveSpeed = FOOD_SPEED;
 
-				if (go->type == GameObject::GO_FISH) //case: shark spawns fish
-				{
-					go->energy = 8.0f;
-					go->sm->SetNextState("Full", go);
-				}
-				else if (go->type == GameObject::GO_FISHFOOD) //case: fish spawns food
-				{
-					go->sm->SetNextState("Grow", go);
-				}
-			}
+			//	if (go->type == GameObject::GO_FISH) //case: shark spawns fish
+			//	{
+			//		go->energy = 8.0f;
+			//		go->sm->SetNextState("Full", go);
+			//	}
+			//	else if (go->type == GameObject::GO_FISHFOOD) //case: fish spawns food
+			//	{
+			//		go->sm->SetNextState("Grow", go);
+			//	}
+			//}
 		}
 
 		MessageEvolve* messageEvolve = dynamic_cast<MessageEvolve*>(message);

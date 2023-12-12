@@ -4,7 +4,7 @@
 #include "SceneData.h"
 
 static const float MESSAGE_INTERVAL = 1.f;
-static const float ENERGY_DROP_RATE = 0.2f;
+static const float ENERGY_DROP_RATE = 0.0f;
 static const float FULL_SPEED = 8.f;
 static const float HUNGRY_SPEED = 4.f;
 
@@ -94,6 +94,14 @@ void StateFull::Update(double dt, GameObject* go)
 				new MessageWRU(go, MessageWRU::NEAREST_SHARK, SHARK_DIST));
 		}
 	}
+
+	//if (go->type == GameObject::GO_PAPER)
+	//{
+	//	if (SceneData::GetRockCount() <= 5)
+	//	{
+
+	//	}
+	//}
 }
 
 void StateFull::Exit(GameObject* go)

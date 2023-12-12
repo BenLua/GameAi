@@ -29,11 +29,11 @@ bool GameObject::Handle(Message* message)
 	if (dynamic_cast<MessageCheckActive*>(message) != nullptr)
 		return active;
 	else if (dynamic_cast<MessageCheckFish*>(message) != nullptr)
-		return active && type == GameObject::GO_FISH;
+		return active && type == GameObject::GO_PAPER;
 	else if (dynamic_cast<MessageCheckFood*>(message) != nullptr)
-		return active && type == GameObject::GO_FISHFOOD;
+		return active && type == GameObject::GO_ROCK;
 	else if (dynamic_cast<MessageCheckShark*>(message) != nullptr)
-		return active && type == GameObject::GO_SHARK;
+		return active && type == GameObject::GO_SCISSORS;
 	//week 5
 	//set speed to 0 upon receiving stop message
 	else if (dynamic_cast<MessageStop*>(message) != nullptr)
